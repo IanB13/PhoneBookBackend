@@ -1,9 +1,10 @@
+const morgan = require('morgan')
 const express = require('express');
 const app = express()
 //needs this for body requests
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
-
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type'))
 //need app.listen to start server
 const port = 3001
 app.listen(port)
@@ -74,8 +75,9 @@ app.post('/api/persons',(request,response) =>{
     const name = request.body.name;
     const number = request.body.number;
     const id = Math.round(Math.random()*10000)
-    console.log(name,number,id)
-    console.log(!!(persons.find(persons => persons.name === name)))
+    morgan(":post-token");
+    //console.log(name,number,id)
+    //console.log(!!(persons.find(persons => persons.name === name)))
     if(!!(persons.find(persons => persons.name === name))){
         response.status(409).send({"error":"Duplicate Name"});
     }
@@ -91,3 +93,8 @@ app.post('/api/persons',(request,response) =>{
     }
     console.log(persons)
 })
+
+
+morgan.token('type', function (req, res) { 
+    const bodyString = JSON.stringify(req.body)
+    return bodyString})
