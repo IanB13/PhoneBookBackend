@@ -8,9 +8,10 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type'))
 //need app.listen to start server
-const port = process.env.port || 3001
-app.listen(port)
-console.log(`Server running on port ${port}`)
+const PORT = process.env.PORT || 3001
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
 
 //should store this elsewhere
 // should not directly mutate array
