@@ -39,7 +39,10 @@ let persons = [
     }
 ];
   
+app.get('',(request,response) =>{
+    response.send(`<h1>Phonebook Backed for Hellsinki MOOC </h1>`)
 
+})
 
 
 app.get('/info',(request,response) =>{
