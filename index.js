@@ -1,12 +1,14 @@
 const morgan = require('morgan')
 const express = require('express');
 const app = express()
+const cors = require('cors');
+app.use(cors())
 //needs this for body requests
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type'))
 //need app.listen to start server
-const port = 3001
+const port = process.env.port || 3001
 app.listen(port)
 console.log(`Server running on port ${port}`)
 
