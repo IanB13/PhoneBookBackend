@@ -7,6 +7,8 @@ app.use(cors())
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type'))
+
+app.use(express.static('build'));
 //need app.listen to start server
 const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
@@ -39,12 +41,6 @@ let persons = [
     }
 ];
   
-app.get('',(request,response) =>{
-    response.send(`<h1>Phonebook Backed for Hellsinki MOOC </h1>`)
-
-})
-
-
 app.get('/info',(request,response) =>{
     response.send(`<div>Phonebook has info for ${persons.length} people</div>
     <div>${new Date} </div>`)
