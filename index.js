@@ -9,7 +9,7 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :type'))
 //error middleware
-//app.use(express.static('build'));
+app.use(express.static('build'));
 //need app.listen to start server, server already built in heroku
 const PORT = process.env.PORT
 app.listen(PORT, () => {
@@ -27,11 +27,7 @@ app.get('/info',(request,response) =>{
     })
 })
 
-//old 
-/* app.get('/api/persons',(request,response) =>{
-    response.json(persons)
-    
-}) */
+
 // New mongofied request
 app.get('/api/persons', (request, response) => {
     Person.find({}).then(person => {
@@ -53,15 +49,10 @@ app.get('/api/persons/:id', (request, response,next) => {
 
 
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response,next) => {
     const name = request.body.name;
     const number = request.body.number;
-    if (name === "") {
-        return response.status(400).json({ alert: 'name missing' })
-    }
-    else if (number === "") {
-        return response.status(400).json({ alert: 'number missing' })
-    }else{    
+    
     const person = new Person({
         name: name,
         number: number
@@ -69,8 +60,8 @@ app.post('/api/persons', (request, response) => {
     
     person.save().then(savedNote => {
         response.json(savedNote.toJSON())
-    }).catch(console.log("hello world"))
-    }
+    }).catch(error => next(error))
+
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -92,31 +83,6 @@ app.put('/api/persons/:id', (request,response,next) =>{
     .catch(error => next(error))
 })
 
-// old heroku api stuff
-/* 
-app.post('/api/persons',(request,response) =>{
-    const name = request.body.name;
-    const number = request.body.number;
-    const id = Math.round(Math.random()*10000)
-    morgan(":post-token");
-    //console.log(name,number,id)
-    //console.log(!!(persons.find(persons => persons.name === name)))
-    if(!!(persons.find(persons => persons.name === name))){
-        response.status(409).send({"error":"Duplicate Name"});
-    }
-    else if(!number || number === ""){
-        response.status(409).send({"error":"No number sent"});
-    }
-    else if(!name || name === ""){
-        response.status(409).send({"error":"No name sent"});
-    }
-    else{
-        persons.push({name,number,id})
-        response.status(201).end();
-    }
-    console.log(persons)
-}) */
-
 //gives info on all api request
 morgan.token('type', function (req, res) { 
     const bodyString = JSON.stringify(req.body)
@@ -128,7 +94,9 @@ const errorHandler = (error, request, response, next) => {
 
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
         return response.status(400).send({ error: 'malformatted id' })
-    }
+    } else if (error.name === 'ValidationError') {
+    return response.status(400).json({ error: error.message })
+  }
 
     next(error)
 }
